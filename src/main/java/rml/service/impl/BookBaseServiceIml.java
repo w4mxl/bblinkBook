@@ -320,7 +320,7 @@ public class BookBaseServiceIml implements BookBaseService {
 
 	@Override
 	public List<BookDetails> selectUserBookList(BaseUserBook baseUserBook) {
-			List<BookDetails> bookList = new ArrayList<>(); 
+			List<BookDetails> bookList = new ArrayList<BookDetails>();
 		List<String> list = bookBaseDao.selectUserBookList(baseUserBook);
 		for (String id : list) {
 			
@@ -358,7 +358,7 @@ public class BookBaseServiceIml implements BookBaseService {
 
 	@Override
 	public List<BookCommentItem> setlectUserCommentBookList(String id) {
-		List<BookCommentItem> list = new ArrayList<>();
+		List<BookCommentItem> list = new ArrayList<BookCommentItem>();
 		List<UserComment> BookCommentList = bookBaseDao.selectUserCommentBookList(id);
 		
 		for (UserComment userComment : BookCommentList) {

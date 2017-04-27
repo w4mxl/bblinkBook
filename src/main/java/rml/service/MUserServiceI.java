@@ -1,9 +1,10 @@
 package rml.service;
 
-import java.util.List;
-
 import rml.model.User;
 import rml.model.UserWeapp;
+import rml.request.UserRequest;
+
+import java.util.List;
 
 public interface MUserServiceI {
 
@@ -11,10 +12,12 @@ public interface MUserServiceI {
 	
 	User selectByPrimaryKey(String id);
 	
-    int insert(User muser);
+    //int insert(User muser);
 
     User getUserMobile(String mobile);
 
 	int insertWeapp(UserWeapp userWeapp);
+
+	int updateUserWeapp (UserRequest userRequest);
 
 }
