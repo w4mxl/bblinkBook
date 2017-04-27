@@ -184,6 +184,9 @@ public class BookBaseServiceIml implements BookBaseService {
 	public Base inputBookDetails(BookDetails bookDetails) {
 		Base base = new Base();
 			try {
+				if(bookDetails.getId() ==null){
+					throw new Exception("json数据没转化成功");
+				}
 				BookDetails book =bookBaseDao.selectBookDetails(bookDetails.getId());
 				
 				if(book == null){

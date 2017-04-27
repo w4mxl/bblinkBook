@@ -52,14 +52,20 @@ public class MUserServiceImpl implements MUserServiceI {
 
 	@Override
 	public int insertWeapp(UserWeapp userWeapp) {
-		// TODO Auto-generated method stub
+
+	/*	if(StringUtils.isNullOrEmpty(muserMapper.selectUserWeapp(userWeapp.getOpenId()))){
+
+		}*/
+		muserMapper.insertWeapp(userWeapp);
+
 		return 0;
 	}
 
 	@Override
 	public int updateUserWeapp(UserRequest userRequest) {
 
-		return 0;
+
+		return muserMapper.updateUserWeapp(userRequest);
 	}
 
 

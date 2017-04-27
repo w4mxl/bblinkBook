@@ -10,7 +10,7 @@ public class UserRequest implements Serializable {
 	 */
 	private static final long serialVersionUID = 5675547126499250212L;
 
-	private String headerImageUrl;
+	private String headImageUrl;
 	private String nickName;
 	private String uid;
 
@@ -30,12 +30,12 @@ public class UserRequest implements Serializable {
 		return serialVersionUID;
 	}
 
-	public String getHeaderImageUrl() {
-		return headerImageUrl;
+	public String getHeadImageUrl() {
+		return headImageUrl;
 	}
 
-	public void setHeaderImageUrl(String headerImageUrl) {
-		this.headerImageUrl = headerImageUrl;
+	public void setHeadImageUrl(String headImageUrl) {
+		this.headImageUrl = headImageUrl;
 	}
 
 	public String getNickName() {

@@ -1,26 +1,13 @@
 package rml.dao;
 
-import java.util.List;
-
-import org.apache.ibatis.annotations.Param;
-
-import rml.controller.BookBaseController;
-import rml.model.BaseBook;
-import rml.model.BookAuthor;
-import rml.model.BookCommentItem;
-import rml.model.BookCommentUserItem;
-import rml.model.BookDetails;
-import rml.model.BookImages;
-import rml.model.BookRating;
-import rml.model.BookTags;
-import rml.model.FavouriteList;
-import rml.model.QueryVo;
-import rml.model.UserBookFavourite;
-import rml.model.UserBookState;
-import rml.model.UserWeapp;
+import org.springframework.stereotype.Service;
+import rml.model.*;
 import rml.request.BaseUserBook;
 import rml.request.UserComment;
 
+import java.util.List;
+
+@Service("bookBaseDao")
 public interface BookBaseDao {
 	//test
 	public List<BaseBook> queryBookBase();
