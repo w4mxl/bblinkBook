@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="rml.dao.BookBaseDao">
+
+	<sql id="base_sql">
+ 		id as bookId, 
+		image as imageUrl,
+ 		title as bookName,
+ 		rate as bookRate
+	</sql>
+
+	<select id="queryBookBase" resultType="rml.model.BaseBook">
+		select  <include refid="base_sql"/>  from book_base  
+	</select>
+	
+	
+	<select id="queryBookBasePage" parameterType="rml.model.QueryVo" resultType="Integer">
+	select count(1) from book
+	</select>
+	
+	<select id="queryBookBaseListByQueryVo" parameterType="rml.model.QueryVo" resultType="rml.model.BookDetails">
+		select id , title from book
+		limit #{startRow},#{size}
+	</select>
+	
+	
+	<select id="queryBookById" parameterType="Integer" resultType="rml.model.BaseBook">
+		select <include refid="base_sql"/> from book_base
+		<where>
+			id=#{bookId}
+		</where>
+	</select>
+	
+	<!-- 修改书目通过Id public void updateBookById(BaseBook basebook); -->
+	<update id="updateBookById" parameterType="rml.model.BaseBook" >
+		update book_base
+		<set>
+			<if test="bookName != null">
+				title = #{bookName},
+			</if>
+			<if test="imageUrl != null">
+				image = #{imageUrl},
+			</if>
+			<if test = "bookRate != null">
+				rate = #{bookRate}
+			</if>
+		</set>
+		<where>
+			id = #{bookId}
+		</where>
+	</update>
+	 <!-- 通过Id删除书目 public void deleteBookById(Integer id);-->
+	 <delete id = "deleteBookById" parameterType="Integer">
+	 	delete from book_base where id = #{value}
+	 </delete>
+	<!-- //通过扫面isbn 添加图书信息
+	public boolean insertBookDetails(BookDetails bookdetails); -->
+	
+	<insert id="insertBookDetails" parameterType="rml.model.BookDetails" >
+		insert into book (pubdate,catalog,ebook_url,pages,id,publisher,isbn13,title,author_intro,summary,price)
+		values (#{pubdate},#{catalog},#{ebook_url},#{pages},#{id},#{publisher},#{isbn13},#{title},#{author_intro},#{summary},#{price})
+	
+	</insert>
+	<!-- //插入作者表数据
+	public int insertBookAuthor(BookAuthor bookAuthor); -->
+	
+	<insert id="insertBookAuthor" parameterType="rml.model.BookAuthor">
+		insert into book_author (id,author)
+		values (#{id},#{author})
+	</insert>
+	<!--  插入图书封面表
+	public int insertBookImages(BookImages bookImages);-->
+	<insert id="insertBookImages" parameterType="rml.model.BookImages">
+	 	insert into images (id,small,large,medium)
+	 	values (#{id},#{small},#{large},#{medium})
+	</insert>
+	<!-- //插入图书标签
+	public int insertBookTags(BookTags bookTags); -->
+	<insert id="insertBookTags" parameterType="rml.model.BookTags">
+		insert into book_tag (id,count,name,title)
+		values (#{id},#{count},#{name},#{title})
+	</insert>
+	<!-- 添豆瓣评分数据
+	public int insertBookRating(BookRating bookRating); -->
+	
+	<insert id="insertBookRating" parameterType="rml.model.BookRating">
+		insert into book_rating (id,average)
+		values (#{id},#{average})
+	</insert>
+	
+	<!-- 图书基本信息表 public int insertBookBase(BaseBook baseBook);  -->
+	<insert id="insertBookBase" parameterType="rml.model.BaseBook">
+	insert into book_base (id, image,title,state,favourite)
+		values (#{bookId},#{imageUrl},#{bookName},#{state},#{favourite})
+	</insert>
+	<!-- // 查询查入的数据
+	public BookDetails selectBookDetails(String id); -->
+	<select id="selectBookDetails" parameterType="string" resultType="rml.model.BookDetails">
+		select * from book
+		<where>
+			id = #{id}
+		</where>
+	</select>
+	<select id="selectBookAuthor" parameterType="string" resultType="string">
+			select author from book_author
+		<where>
+			id = #{id}
+		</where>
+	</select>
+	<select id="selectBookImages" parameterType="string" resultType="rml.model.BookImages">
+		select * from images
+		<where>
+			id = #{id}
+		</where>
+	</select>
+	<select id="selectBookTag" parameterType="string" resultType="rml.model.BookTags">
+		 select * from book_tag
+	 <where>
+	 	id = #{id}
+	 </where>
+	</select>
+	
+	
+	<select id="selectBookRating" parameterType="string" resultType="rml.model.BookRating">
+		select * from book_rating where id = #{id}
+	</select>
+	
+	<!-- public void changeBookState(String id ,Integer state); -->
+	
+	
+	<update id="changeBookState" parameterType="rml.model.UserBookState">
+		update book
+		 <set>
+		 	<if test="state != null" >
+		 		state = #{state},
+			 </if>
+				 uid = #{uid}
+		 </set>
+		<where>
+		 	id = #{id} 
+		</where>
+		
+	</update>
+	
+	<update id="changeBookStateToBase" parameterType="rml.model.UserBookState">
+		update book_base
+		 <set>
+		 	<if test="state != null" >
+		 	state = #{state},
+			 </if>
+				 uid = #{uid}
+		 </set>
+		<where>
+		 	id = #{id}
+		</where>
+	</update>
+	
+	<!-- 	public int changeBookFavourite(@Param(value = "id") String id,@Param(value = "favourite") Integer favourite); -->
+	<update id="changeBookFavourite">
+		update book
+		<set>
+			<if test="favourite != null">
+				favourite = #{favourite},
+			</if>
+			<if test = "uid != null">
+				uid = #{uid}
+			</if>
+		</set>
+		<where>
+			id = #{id}
+		</where>
+	</update>
+	
+	<update id="changeBookFavouriteToBase">
+		update book_base
+		<set>
+			<if test="favourite != null">
+				favourite = #{favourite},
+			</if>
+			<if test=" uid != null">
+				uid = #{uid}
+			</if>
+		</set>
+		<where>
+			id = #{id}
+		</where>
+	</update>
+	
+	<!--
+		//收藏(添加收藏)
+	public int insertFavouriteList(UserBookFavourite userBookFavourite);
+	//查询收藏列表
+	public int selectFavouriteList( userBookFavourite);
+	//删除收藏列表(取消收藏)
+	public int deleteFavouriteList( userBookFavourite);
+	-->
+	
+	<insert id="insertFavouriteList" parameterType="rml.model.UserBookFavourite">
+		insert into favourite_list (id,uid,favourite_data,favourite_state)
+		values (#{id},#{uid},#{favouriteState},#{favouriteData})
+	</insert>
+	
+	<select id = "selectFavouriteList" parameterType="rml.model.UserBookFavourite">
+		select count(1) from favourite_list
+		 <where>
+	 				id = #{id}
+		 </where>
+		  <where>
+	  				and uid = #{uid}
+		  </where>
+	</select>
+	
+	<delete  id="deleteFavouriteList" parameterType="rml.model.UserBookFavourite">
+	
+	 delete from favourite_list where id = #{id} and  uid = #{uid}  
+	
+	</delete>
+	
+	<!-- //修改用户和书的关系表
+	public int updateUserBook(BaseUserBook baseUserBook); -->
+	
+	<update id="updateUserBook" parameterType="rml.request.BaseUserBook">
+	
+		update user_book
+			<set>
+		<if test=" nexusState != null">
+			nexus_state = #{nexusState},
+		</if>
+		<if test=" nexusTime != null">
+			nexus_time = #{nexusTime}
+		</if>
+		</set>
+		where book_id = #{id} and user_id = #{uid}
+	</update>
+	
+	<!-- //添加一条关系数据
+	public int insertUserBook(BaseUserBook baseUserBook);  -->
+	
+	<insert id="insertUserBook" parameterType="rml.request.BaseUserBook">
+		insert into user_book (book_id,user_id,nexus_state,nexus_time)
+		values (#{id},#{uid},#{nexusState},#{nexusTime})
+	</insert>
+	
+	<!-- //根据用户id nexusState 查询表
+	public int selectUseBookCount(BaseUserBook baseUserBook); -->
+	
+	<select id="selectUserBookCount" parameterType="rml.request.BaseUserBook" resultType="Integer">
+		select count(1) from user_book where user_id = #{uid} and nexus_state = #{nexusState}
+	</select>
+	
+	<!-- //根据关系状态查询 书的id
+	public List<String> selectUserBookList(BaseUserBook baseUserBook); -->
+	
+	<select id="selectUserBookList" parameterType="rml.request.BaseUserBook" resultType="string">
+	
+		select book_id from user_book where	 user_id = #{uid} and nexus_state = #{nexusState}
+	
+	</select>
+	
+	<!-- //写书评
+	public int insertUserComment(UserComment userComment); -->
+	
+	<insert id="insertUserComment" parameterType="rml.request.UserComment">
+		insert into user_comment (book_id,user_id,content,comment_time)
+		values (#{id},#{uid},#{content},#{commentTime})
+	</insert>
+	
+	<!-- //用户书评数量
+	public int selectUserCommentCount(String uid); -->
+	
+	<select id="selectUserCommentCount" parameterType="string" resultType="Integer">
+		select count(1) from  user_comment where user_id = #{uid}
+	</select>
+	
+	<!-- 用户书评列表//用户书评列表
+	public List<UserComment> selectUserCommentList(String uid); -->
+	<sql id = "user_comment">
+	
+		book_id as id,
+		user_id as uid,
+		content as content,
+		comment_time as commentTime
+	
+	</sql>
+	<select id="selectUserCommentList" parameterType="string" resultType="rml.request.UserComment">
+	
+		 select <include refid="user_comment"/> from user_comment 
+		 where user_id = #{uid} 
+	</select>
+	
+	<!--//书的评论列表
+	public List<BookCommentItem> selectUserCommentBookList(String id);  -->
+	
+
+	<select id="selectUserCommentBookList" parameterType="string" resultType="rml.request.UserComment">
+	
+		 select <include refid="user_comment"/> from user_comment 
+		 where book_id = #{id} 
+	</select>
+	
+	<!--//查询评论用户
+	UserWeapp selectUserWeappByBookId(String  uid);  -->
+	<sql id = "book_comment">
+
+ 		 user_id as userId,
+  		nick_name as nickName,
+		  sex as sex,
+ 		 headimgurl as headimgurl
+
+	</sql>
+	
+	<select id="selectUserWeappByBookId" parameterType="string" resultType="rml.model.BookCommentUserItem">
+	select <include refid="book_comment"/> from user_weapp where user_id = #{value}
+	</select>
+</mapper>
