@@ -22,7 +22,7 @@ import rml.request.BaseUserBook;
 import rml.request.UserComment;
 
 public interface BookBaseDao {
-	
+	//test
 	public List<BaseBook> queryBookBase();
 	
 	public int insertBookBase(BaseBook baseBook);
