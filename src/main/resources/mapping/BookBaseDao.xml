@@ -326,4 +326,40 @@
 		SELECT <include refid="book_nexus"/> FROM  user_book
 		where  book_id = #{value}
 	</select>
+
+
+	<select id="searchBookByISBN_dim" parameterType="string" resultType="rml.model.SearchResultBean">
+		SELECT*
+		FROM book where  isbn13 LIKE  CONCAT('%',#{value},'%')
+	</select>
+
+
+	<select id="searchBookByBookName_dim" parameterType="string" resultType="rml.model.SearchResultBean">
+		SELECT*
+		FROM book where title LIKE  CONCAT('%',#{value},'%')
+	</select>
+
+	<select id="searchBookIDbyAuthor_dim" parameterType="string" resultType="string">
+		SELECT id
+		FROM book_author
+		where author LIKE  CONCAT('%',#{value},'%')
+	</select>
+
+	<select id="searchBookByID" parameterType="string" resultType="rml.model.SearchResultBean">
+		SELECT *
+		FROM book where id = #{value}
+	</select>
+
+
+	<select id="searchAuthorByID" parameterType="string" resultType="string">
+		SELECT author
+		FROM book_author where id = #{value}
+	</select>
+
+
+	<select id="searchImageByID" parameterType="string" resultType="rml.model.BookImages">
+		SELECT *
+		FROM images where id = #{value}
+	</select>
+
 </mapper>

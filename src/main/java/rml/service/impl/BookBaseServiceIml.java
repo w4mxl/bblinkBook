@@ -2,6 +2,7 @@ package rml.service.impl;
 
 import java.awt.Component.BaselineResizeBehavior;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import rml.model.*;
 import rml.request.BaseUserBook;
 import rml.request.UserComment;
 import rml.service.BookBaseService;
+import rml.util.BaseUtils;
 import rml.util.Page;
 
 @Service("bookBaseService")
@@ -398,5 +400,43 @@ public class BookBaseServiceIml implements BookBaseService {
 		}
 		
 		return list;
+	}
+
+	//查询
+	@Override
+	public Page<SearchResultBean> search(String searchContent) {
+
+		Page<SearchResultBean> page = new Page<SearchResultBean>();
+
+		//isbn查询
+		List<SearchResultBean> resultList = new ArrayList<SearchResultBean>();
+		if (BaseUtils.isNumeric(searchContent) && searchContent.length() >= 10) {
+
+			resultList.addAll(bookBaseDao.searchBookByISBN_dim(searchContent));
+
+		} else {
+			//作者和书名查询
+			ArrayList<SearchResultBean> list = new ArrayList<SearchResultBean>();
+			list.addAll(bookBaseDao.searchBookByBookName_dim(searchContent));
+			List<String> bookIDList = bookBaseDao.searchBookIDbyAuthor_dim(searchContent);
+			for (String bookID : bookIDList) {
+				list.add(bookBaseDao.searchBookByID(bookID));
+			}
+
+			HashSet<SearchResultBean> setList = new HashSet<SearchResultBean>();
+			setList.addAll(list);
+			resultList.addAll(setList);
+		}
+
+		//根据ID得到书的作者和封面
+		for (SearchResultBean bookDetails : resultList) {
+			bookDetails.setAuthor(bookBaseDao.searchAuthorByID(bookDetails.getId()));
+			bookDetails.setImages(bookBaseDao.searchImageByID(bookDetails.getId()));
+		}
+
+		page.setRows(resultList);
+		page.setTotal(resultList.size());
+		return page;
+
 	}
 }

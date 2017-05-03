@@ -88,4 +88,31 @@ public interface BookBaseDao {
 
 	//根据书的id 查询状态
 	List<BaseUserBook> selectuserBookNexus( String id);
+
+
+	/***********************************************************************
+	 *  搜索功能用到的
+	 */
+
+	//通过isbn模糊查询书
+	List<SearchResultBean> searchBookByISBN_dim(String isbnID);
+
+
+	//通过书名查询书
+	List<SearchResultBean> searchBookByBookName_dim(String bookName);
+
+	//通过作者查询书
+	List<String> searchBookIDbyAuthor_dim(String authorName);
+
+	//通过书的ID查询图书详情
+	SearchResultBean searchBookByID(String id);
+
+	//通过书的ID查询作者
+	String[] searchAuthorByID(String ID);
+
+	//通过书的ID查询图片
+	BookImages searchImageByID(String ID);
+
+	/***************************************************************************/
+
 }

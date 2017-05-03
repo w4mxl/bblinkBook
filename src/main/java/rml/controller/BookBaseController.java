@@ -412,5 +412,29 @@ public class BookBaseController {
 			return base;
 		}
 	}
+
+
+	//搜索
+	@RequestMapping(value = "/search")
+	@ResponseBody
+	public Base search(String searchContent) {
+
+		Base base = new Base();
+		try {
+			Page<SearchResultBean> page = bookBaseService.search(searchContent);
+			base.setCode(0);
+			base.setState("成功");
+			base.setData(page);
+
+		} catch (Exception e) {
+			base.setCode(0);
+			base.setState("失败");
+			base.setData(null);
+			return base;
+		}
+
+		return base;
+
+	}
 	
 }
