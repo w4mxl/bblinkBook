@@ -194,7 +194,7 @@ public class BookBaseController {
 	*/
 	
 //	----------------------------重新整理数据库-------------------------------------------------
-	
+	//SUN test
 	//录入接口
 	
 	@RequestMapping(value = "/book/input", method = RequestMethod.POST )
