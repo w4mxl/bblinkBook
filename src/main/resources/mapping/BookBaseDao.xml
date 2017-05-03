@@ -250,10 +250,16 @@
 	
 	<!-- //根据关系状态查询 书的id
 	public List<String> selectUserBookList(BaseUserBook baseUserBook); -->
+
+	<sql id="select_userbook">
+
+		book_id as bookId,
+		nexus_time as createTime
+
+	</sql>
+	<select id="selectUserBookList" parameterType="rml.request.BaseUserBook" resultType="rml.model.selectUserBookTime">
 	
-	<select id="selectUserBookList" parameterType="rml.request.BaseUserBook" resultType="string">
-	
-		select book_id from user_book where	 user_id = #{uid} and nexus_state = #{nexusState}
+		select <include refid="select_userbook"/> from user_book where	 user_id = #{uid} and nexus_state = #{nexusState}
 	
 	</select>
 	

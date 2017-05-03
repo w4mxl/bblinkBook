@@ -55,7 +55,7 @@ public interface BookBaseService {
 	
 	UserBookCount selectBookCount(BaseUserBook baseUserBook);
 	
-	List<BookDetails> selectUserBookList(BaseUserBook baseUserBook);
+	userBookListResponse selectUserBookList(BaseUserBook baseUserBook);
 	
 	int insertUserComment(UserComment userComment);
 	

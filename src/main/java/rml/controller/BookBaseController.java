@@ -292,21 +292,22 @@ public class BookBaseController {
 		
 	} 
 	
-	//关系列表（在读 ，想读， 已读） 
-	
+	//关系列表（在读  1 ，想读 2， 已读 0）
+	@RequestMapping(value = "/userBook/list")
+	@ResponseBody
 	public Base selectUserBookList(BaseUserBook baseUserBook){
 		Base base = new Base();
 		try {
-			if(	baseUserBook.getId() == null||
+			/*if(	baseUserBook.getId() == null||
 				baseUserBook.getNexusState()<0||
 				baseUserBook.getNexusState()>2){
 				throw new Exception("参数异常");
 			}
-			
-		List<BookDetails>	list = bookBaseService.selectUserBookList(baseUserBook);
+			*/
+		userBookListResponse	listResponse = bookBaseService.selectUserBookList(baseUserBook);
 			base.setCode(0);
 			base.setState("成功");
-			base.setData(list);
+			base.setData(listResponse);
 			return base;
 		} catch (Exception e) {
 			base.setCode(2);

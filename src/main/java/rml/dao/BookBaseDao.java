@@ -72,8 +72,9 @@ public interface BookBaseDao {
 	public int selectUserBookCount(BaseUserBook baseUserBook);
 	
 	//根据关系状态查询 书的id
-	public List<String> selectUserBookList(BaseUserBook baseUserBook);
-	
+	//public List<String> selectUserBookList(BaseUserBook baseUserBook);
+	public List<selectUserBookTime> selectUserBookList(BaseUserBook baseUserBook);
+
 	//写书评
 	public int insertUserComment(UserComment userComment);
 	//用户书评数量

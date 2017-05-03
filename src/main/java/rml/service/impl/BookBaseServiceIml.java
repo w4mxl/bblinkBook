@@ -349,16 +349,58 @@ public class BookBaseServiceIml implements BookBaseService {
 	}
 
 	@Override
-	public List<BookDetails> selectUserBookList(BaseUserBook baseUserBook) {
-			List<BookDetails> bookList = new ArrayList<BookDetails>();
-		List<String> list = bookBaseDao.selectUserBookList(baseUserBook);
-		for (String id : list) {
-			
-				BookDetails bookDetails =selectBookDetails(id);			
-				bookList.add(bookDetails);
+	public userBookListResponse selectUserBookList(BaseUserBook baseUserBook) {
+			List<UserBookTime> readingList = new ArrayList<UserBookTime>();
+			List<UserBookTime> wantReadList = new ArrayList<UserBookTime>();
+			List<UserBookTime> readedList  = new ArrayList<UserBookTime>();
+
+			//在读书的id
+			baseUserBook.setNexusState(1);
+		    //List<String> listReading = bookBaseDao.selectUserBookList(baseUserBook);
+			List<selectUserBookTime> listReading = bookBaseDao.selectUserBookList(baseUserBook);
+			//想读书的id
+			baseUserBook.setNexusState(2);
+			//List<String> listWantRead = bookBaseDao.selectUserBookList(baseUserBook);
+			List<selectUserBookTime> listWantRead = bookBaseDao.selectUserBookList(baseUserBook);
+			//还书的书的id
+			baseUserBook.setNexusState(0);
+			//List<String> listReaded = bookBaseDao.selectUserBookList(baseUserBook);
+			List<selectUserBookTime> listReaded = bookBaseDao.selectUserBookList(baseUserBook);
+
+		for (selectUserBookTime id : listReading) {
+			UserBookTime userBookItem = new UserBookTime();
+			/*	BookDetails bookDetails =selectBookDetails(id.getBookId());
+				Long time  = id.getCreateTime();*/
+				userBookItem.setBookDetails(selectBookDetails(id.getBookId()));
+				userBookItem.setCreatTime(id.getCreateTime());
+				readingList.add(userBookItem);
 		}
-		
-		return bookList;
+
+		for (selectUserBookTime id: listWantRead){
+			/*BookDetails bookDetails =selectBookDetails(id);
+			wantReadList.add(bookDetails);*/
+			UserBookTime userBookItem = new UserBookTime();
+			userBookItem.setBookDetails(selectBookDetails(id.getBookId()));
+			userBookItem.setCreatTime(id.getCreateTime());
+			wantReadList.add(userBookItem);
+		}
+
+		for(selectUserBookTime id: listReaded){
+
+			/*BookDetails bookDetails =selectBookDetails(id);
+			readedList.add(bookDetails);*/
+
+			UserBookTime userBookItem = new UserBookTime();
+			userBookItem.setBookDetails(selectBookDetails(id.getBookId()));
+			userBookItem.setCreatTime(id.getCreateTime());
+			readedList.add(userBookItem);
+		}
+		userBookListResponse listResponse = new userBookListResponse();
+		listResponse.setReading(readingList);
+		listResponse.setReaded(readedList);
+		listResponse.setWantRead(wantReadList);
+
+		return listResponse;
 	}
 	
 	@Override
