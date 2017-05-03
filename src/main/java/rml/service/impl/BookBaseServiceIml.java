@@ -8,22 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import rml.dao.BookBaseDao;
-import rml.model.Base;
-import rml.model.BaseBook;
-import rml.model.BookAuthor;
-import rml.model.BookCommentItem;
-import rml.model.BookCommentUserItem;
-import rml.model.BookDetails;
-import rml.model.BookImages;
-import rml.model.BookRating;
-import rml.model.BookTags;
-import rml.model.CommentItem;
-import rml.model.FavouriteList;
-import rml.model.QueryVo;
-import rml.model.UserBookFavourite;
-import rml.model.UserBookState;
-import rml.model.UserCommentResponse;
-import rml.model.UserWeapp;
+import rml.model.*;
 import rml.request.BaseUserBook;
 import rml.request.UserComment;
 import rml.service.BookBaseService;
@@ -184,9 +169,7 @@ public class BookBaseServiceIml implements BookBaseService {
 	public Base inputBookDetails(BookDetails bookDetails) {
 		Base base = new Base();
 			try {
-				if(bookDetails.getId() ==null){
-					throw new Exception("json数据没转化成功");
-				}
+
 				BookDetails book =bookBaseDao.selectBookDetails(bookDetails.getId());
 				
 				if(book == null){
@@ -196,36 +179,44 @@ public class BookBaseServiceIml implements BookBaseService {
 						BookAuthor bookAuthor = new BookAuthor();
 						bookAuthor.setId(bookDetails.getId());
 						bookAuthor.setAuthor(author);
+						BookNexus<BookAuthor> bookAuthorNexus = new BookNexus<BookAuthor>();
+						bookAuthorNexus.setT(bookAuthor);
+						bookAuthorNexus.setId(bookDetails.getId());
 						bookBaseDao.insertBookAuthor(bookAuthor);
 					}
 					BookRating bookRating = bookDetails.getRating();
-					bookRating.setId(bookDetails.getId());
-					bookBaseDao.insertBookRating(bookRating);
+					//bookRating.setId(bookDetails.getId());
+					BookNexus<BookRating> bookRatingBookNexus= new BookNexus<BookRating>();
+					bookRatingBookNexus.setId(bookDetails.getId());
+				//	bookRatingBookNexus.setT(bookRating.getAverage());
+					bookBaseDao.insertBookRating(bookDetails.getId(),bookRating.getAverage());
 					
 					List<BookTags> bookTags = bookDetails.getTags();
 					for (BookTags tag : bookTags) {
-						tag.setId(bookDetails.getId());
-						bookBaseDao.insertBookTags(tag);
+						bookBaseDao.insertBookTags(bookDetails.getId(),tag.getCount(),
+								tag.getName(),tag.getTitle());
 					} 
 					BookImages images = bookDetails.getImages();
-					images.setId(bookDetails.getId());
-					bookBaseDao.insertBookImages(images);	
+					//images.setId(bookDetails.getId());
+					bookBaseDao.insertBookImages(images.getSmall(),images.getLarge(),images.getMedium(),bookDetails.getId());
 					book = bookBaseDao.selectBookDetails(bookDetails.getId());
 					book.setAuthor(bookBaseDao.selectBookAuthor(bookDetails.getId()));
 					book.setRating(bookBaseDao.selectBookRating(bookDetails.getId()));
 					book.setTags(bookBaseDao.selectBookTag(bookDetails.getId()));
 					book.setImages(bookBaseDao.selectBookImages(bookDetails.getId()));
+					book.setBorrowState(getUserBookState(bookDetails.getId()));
 					base.setCode(0);
 					base.setState("录入成功");
 					base.setData(book);		
 					return base;
 			}
 				base.setCode(1);
-				base.setState("录入失败");
+				base.setState("已经录入");
 				book.setAuthor(bookBaseDao.selectBookAuthor(bookDetails.getId()));
 				book.setRating(bookBaseDao.selectBookRating(bookDetails.getId()));
 				book.setTags(bookBaseDao.selectBookTag(bookDetails.getId()));
 				book.setImages(bookBaseDao.selectBookImages(bookDetails.getId()));
+				book.setBorrowState(getUserBookState(bookDetails.getId()));
 				base.setData(book);
 			return base;
 		
@@ -257,8 +248,10 @@ public class BookBaseServiceIml implements BookBaseService {
 			for (BookDetails bookDetails : list) {
 				BookImages images =  bookBaseDao.selectBookImages(bookDetails.getId());
 				BookRating  bookRating = bookBaseDao.selectBookRating(bookDetails.getId());
+				int state = getUserBookState(bookDetails.getId());
 				bookDetails.setImages(images);
 				bookDetails.setRating(bookRating);
+				bookDetails.setBorrowState(state);
 			}
 			page.setRows(list);
 		}
@@ -311,14 +304,46 @@ public class BookBaseServiceIml implements BookBaseService {
 			book.setRating(bookBaseDao.selectBookRating(id));
 			book.setTags(bookBaseDao.selectBookTag(id));
 			book.setImages(bookBaseDao.selectBookImages(id));
+			int state = getUserBookState(id);
+			book.setBorrowState(state);
 			
 			return book;
 		
 	}
 
-	public int selectBookCount(BaseUserBook baseUserBook){
-		
-		return bookBaseDao.selectUserBookCount(baseUserBook);
+	private int getUserBookState(String id) {
+		List<BaseUserBook> userNexus = bookBaseDao.selectuserBookNexus(id);
+		int state = -1;
+		if (userNexus.size() == 0){
+			state = 0;
+		}else{
+			for (BaseUserBook userBookState : userNexus){
+				if(userBookState.getNexusState() == 1){
+					state = 1;
+					break;
+				}
+				state = 0;
+			}
+		}
+		return state;
+	}
+
+	public UserBookCount selectBookCount(BaseUserBook baseUserBook){
+		//在读
+		baseUserBook.setNexusState(1);
+		int reading = bookBaseDao.selectUserBookCount(baseUserBook);
+		//已读
+		baseUserBook.setNexusState(0);
+		int readed = bookBaseDao.selectUserBookCount(baseUserBook);
+		//想读
+		baseUserBook.setNexusState(2);
+		 int wantRead = bookBaseDao.selectUserBookCount(baseUserBook);
+		 UserBookCount userBookCount = new UserBookCount();
+
+		 userBookCount.setReading(reading);
+		 userBookCount.setReaded(readed);
+		 userBookCount.setWantRead(wantRead);
+		return userBookCount;
 	}
 
 	@Override

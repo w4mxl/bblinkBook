@@ -2,6 +2,10 @@ package rml.model;
 
 public class BasePage  extends Base{
 
+	private int bookNexus;
+
+
+
 	private int pageNum;
 	private int pageSize;
 	private int total;

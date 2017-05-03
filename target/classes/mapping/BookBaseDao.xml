@@ -15,7 +15,7 @@
 	
 	
 	<select id="queryBookBasePage" parameterType="rml.model.QueryVo" resultType="Integer">
-	select count(1) from book
+	select count(pid) from book
 	</select>
 	
 	<select id="queryBookBaseListByQueryVo" parameterType="rml.model.QueryVo" resultType="rml.model.BookDetails">
@@ -70,20 +70,20 @@
 	</insert>
 	<!--  插入图书封面表
 	public int insertBookImages(BookImages bookImages);-->
-	<insert id="insertBookImages" parameterType="rml.model.BookImages">
+	<insert id="insertBookImages" >
 	 	insert into images (id,small,large,medium)
 	 	values (#{id},#{small},#{large},#{medium})
 	</insert>
 	<!-- //插入图书标签
 	public int insertBookTags(BookTags bookTags); -->
-	<insert id="insertBookTags" parameterType="rml.model.BookTags">
+	<insert id="insertBookTags" >
 		insert into book_tag (id,count,name,title)
 		values (#{id},#{count},#{name},#{title})
 	</insert>
 	<!-- 添豆瓣评分数据
 	public int insertBookRating(BookRating bookRating); -->
 	
-	<insert id="insertBookRating" parameterType="rml.model.BookRating">
+	<insert id="insertBookRating" >
 		insert into book_rating (id,average)
 		values (#{id},#{average})
 	</insert>
@@ -308,8 +308,22 @@
  		 headimgurl as headimgurl
 
 	</sql>
-	
+
+
 	<select id="selectUserWeappByBookId" parameterType="string" resultType="rml.model.BookCommentUserItem">
 	select <include refid="book_comment"/> from user_weapp where user_id = #{value}
+	</select>
+
+	<sql id="book_nexus">
+
+		book_id as id,
+		user_id as uid,
+		nexus_state as nexusState,
+		nexus_time as nexusTime
+	</sql>
+	<!--根据书的id查询状态　selectuserBookNexus(bookDetails.getId());-->
+	<select id="selectuserBookNexus" parameterType="string" resultType="rml.request.BaseUserBook">
+		SELECT <include refid="book_nexus"/> FROM  user_book
+		where  book_id = #{value}
 	</select>
 </mapper>

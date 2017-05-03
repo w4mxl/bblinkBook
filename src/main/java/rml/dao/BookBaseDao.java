@@ -1,5 +1,6 @@
 package rml.dao;
 
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
 import rml.model.*;
 import rml.request.BaseUserBook;
@@ -30,11 +31,18 @@ public interface BookBaseDao {
 	//插入作者表数据
 	public int insertBookAuthor(BookAuthor bookAuthor);
 	//插入图书封面表
-	public int insertBookImages(BookImages bookImages);
-	//插入图书标签
-	public int insertBookTags(BookTags bookTags);
+	public int insertBookImages(@Param("small") String small,
+								@Param("large") String large,
+								@Param("medium") String medium,
+								@Param("id") String id);
+	//插入图书标签tag.getCount(),tag.getName(),tag.getTitle()
+	public int insertBookTags( @Param("id")String id,
+							  @Param("count") Integer count,
+							  @Param("name") String name,
+							  @Param("title") String title
+							 );
 	//添豆瓣评分数据
-	public int insertBookRating(BookRating bookRating);
+	public int insertBookRating( @Param("id") String id,@Param("average") String average);
 	// 查询查入的数据
 	public BookDetails selectBookDetails(String id);
 	public String[] selectBookAuthor(String id);
@@ -77,4 +85,7 @@ public interface BookBaseDao {
 	
 	//查询评论用户
 	BookCommentUserItem selectUserWeappByBookId(String  uid);
+
+	//根据书的id 查询状态
+	List<BaseUserBook> selectuserBookNexus( String id);
 }

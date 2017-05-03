@@ -1,26 +1,11 @@
 package rml.service;
 
-import java.util.List;
-
-import rml.model.Base;
-import rml.model.BaseBook;
-import rml.model.BookAuthor;
-import rml.model.BookCommentItem;
-import rml.model.BookDetails;
-import rml.model.BookImages;
-import rml.model.BookRating;
-import rml.model.BookTags;
-import rml.model.CommentItem;
-import rml.model.FavouriteList;
-import rml.model.QueryVo;
-import rml.model.User;
-import rml.model.UserBookFavourite;
-import rml.model.UserBookState;
-import rml.model.UserCommentResponse;
-import rml.model.UserWeapp;
+import rml.model.*;
 import rml.request.BaseUserBook;
 import rml.request.UserComment;
 import rml.util.Page;
+
+import java.util.List;
 
 public interface BookBaseService {
 
@@ -68,7 +53,7 @@ public interface BookBaseService {
 	
 	BookDetails selectBookDetails(String id);
 	
-	int selectBookCount(BaseUserBook baseUserBook);
+	UserBookCount selectBookCount(BaseUserBook baseUserBook);
 	
 	List<BookDetails> selectUserBookList(BaseUserBook baseUserBook);
 	

@@ -5,7 +5,6 @@ import java.util.List;
 public class BookDetails {
 	
 	private BookRating rating;
-
 	private String[] author;
 	private String pubdate;
 	private List<BookTags> tags;
@@ -20,7 +19,16 @@ public class BookDetails {
 	private String author_intro; 
 	private String summary;
 	private String price;
-	
+	private int borrowState;
+
+	public int getBorrowState() {
+		return borrowState;
+	}
+
+	public void setBorrowState(int borrowState) {
+		this.borrowState = borrowState;
+	}
+
 	public BookRating getRating() {
 		return rating;
 	}

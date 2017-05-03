@@ -213,7 +213,7 @@ public class BookBaseController {
 	public BasePage selectBook(QueryVo vo){
 		BasePage basepage = new BasePage();
 		try {
-
+//borrowState;
 			Page<BookDetails> page =  bookBaseService.queryBookBasePage(vo);
 		
 			//List<BookDetails> baseBookPage = bookBaseService.queryBookBasePage(vo).getRows();
@@ -223,6 +223,7 @@ public class BookBaseController {
 			basepage.setPageSize(vo.getSize());
 			basepage.setData(page.getRows());
 			basepage.setTotal(page.getTotal());
+		//	basepage.setBookNexus(bookBaseService.selectUserBookList());
 			return basepage;
 		} catch (Exception e) {
 			// TODO: handle exception
@@ -273,19 +274,16 @@ public class BookBaseController {
 		Base base = new Base();
 		
 		try {
-			if(	baseUserBook.getUid() == null || 
-				baseUserBook .getNexusState() < 0 || 
-				baseUserBook.getNexusState() >2){
+			if(	baseUserBook.getUid() == null ){
 				throw new Exception("参数异常");
 			}
 			
-			int count = bookBaseService.selectBookCount(baseUserBook);
+			UserBookCount count = bookBaseService.selectBookCount(baseUserBook);
 			base.setCode(0);
 			base.setState("成功");
 			base.setData(count);
 			return base;
 		} catch (Exception e) {
-
 			base.setCode(2);
 			base.setState(e.getMessage());
 			base.setData(null);

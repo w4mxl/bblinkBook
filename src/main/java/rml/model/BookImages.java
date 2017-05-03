@@ -4,18 +4,7 @@ public class BookImages {
 	private String small;
 	private String large;
 	private String medium;
-	private String id;
-	
-	public String getId() {
-		return id;
-	}
-	public void setId(String id) {
-		this.id = id;
-	}
-	@Override
-	public String toString() {
-		return "BookImages [small=" + small + ", large=" + large + ", medium=" + medium + ", id=" + id + "]";
-	}
+
 	public String getSmall() {
 		return small;
 	}

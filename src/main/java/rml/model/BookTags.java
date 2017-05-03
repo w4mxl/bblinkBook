@@ -5,14 +5,7 @@ public class BookTags {
 	private int count;
 	private String name;
 	private String title;
-	private String id;
 
-	public String getId() {
-		return id;
-	}
-	public void setId(String id) {
-		this.id = id;
-	}
 	public int getCount() {
 		return count;
 	}
