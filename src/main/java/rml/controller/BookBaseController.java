@@ -13,8 +13,6 @@ import rml.request.UserComment;
 import rml.service.BookBaseService;
 import rml.util.Page;
 
-import java.util.List;
-
 /*
  * 书目管理
 */
@@ -321,8 +319,6 @@ public class BookBaseController {
 	@RequestMapping(value = "/userComment/insert")
 	@ResponseBody
 	public Base insertUserComment(UserComment userComment){
-		System.out.println("-----"+userComment.toString());
-		
 		Base base = new Base();
 		try {
 			if( userComment.getId() == null||
@@ -374,22 +370,23 @@ public class BookBaseController {
 	//用户书评列表
 	@RequestMapping(value = "/userComment/list")
 	@ResponseBody
-	public Base selectUserCommentList(String uid){
-		Base base = new Base();
+	public BasePage selectUserCommentList(QueryUserComment vo){
+		BasePage basePage = new BasePage();
 		try {
-			if(uid == null){
-				throw new Exception("参数异常");
-			}
-		List<CommentItem> list = bookBaseService.selectUserCommentList(uid);
-			base.setCode(0);
-			base.setState("成功");
-			base.setData(list);
-			return base;
+
+		Page<UserCommentResponse> page  = bookBaseService.selectUserCommentList(vo);
+			basePage.setCode(0);
+			basePage.setState("成功");
+			basePage.setPageNum(vo.getPage());
+			basePage.setPageSize(vo.getSize());
+			basePage.setData(page.getRows());
+			basePage.setTotal(page.getTotal());
+			return basePage;
 		} catch (Exception e) {
-			base.setCode(2);
-			base.setState(e.getMessage());
-			base.setData(null);
-			return base;
+			basePage.setCode(2);
+			basePage.setState(e.getMessage());
+			basePage.setData(null);
+			return basePage;
 		}
 	}
 	
@@ -397,20 +394,22 @@ public class BookBaseController {
 	
 	@RequestMapping(value = "/userComment/booklist")
 	@ResponseBody
-	
-	public Base selectUserCommentBookList(String id){
-		Base base = new Base();
-		try {			
-		List<BookCommentItem> list = bookBaseService.setlectUserCommentBookList(id);
-		base.setCode(0);
-		base.setState("成功");
-		base.setData(list);
-		return base;
+	public BasePage selectUserCommentBookList(QueryBookComment vo){
+		BasePage basepage = new BasePage();
+		try {
+		Page<UserCommentResponse>	page = bookBaseService.setlectUserCommentBookList(vo);
+			basepage.setCode(0);
+			basepage.setState("成功");
+			basepage.setPageNum(vo.getPage());
+			basepage.setPageSize(vo.getSize());
+			basepage.setData(page.getRows());
+			basepage.setTotal(page.getTotal());
+		return basepage;
 		} catch (Exception e) {
-			base.setCode(0);
-			base.setState("失败");
-			base.setData(null);
-			return base;
+			basepage.setCode(0);
+			basepage.setState(e.getMessage());
+			basepage.setData(null);
+			return basepage;
 		}
 	}
 

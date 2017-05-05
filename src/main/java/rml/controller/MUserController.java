@@ -1,5 +1,10 @@
 package rml.controller;
 
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,17 +13,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import rml.dto.AccessToken;
-import rml.dto.ReturnJson;
-import rml.dto.ReturnUser;
 import rml.model.Base;
+import rml.model.LoginResponse;
 import rml.model.UserWeapp;
 import rml.request.UserRequest;
 import rml.service.JsonMapper;
 import rml.service.MUserServiceI;
-import rml.util.OkHttpUtil;
 
-import javax.servlet.jsp.tagext.TryCatchFinally;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -33,11 +34,11 @@ public class MUserController {
 
 	protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+	@Autowired
 	private MUserServiceI muserService;
 
-	
-	private JsonMapper jsonMapper;
 
+	private JsonMapper jsonMapper;
 
 
 	public JsonMapper getJsonMapper() {
@@ -51,6 +52,7 @@ public class MUserController {
 
 	
 
+/*
 	public MUserServiceI getMuserService() {
 		return muserService;
 	}
@@ -59,6 +61,7 @@ public class MUserController {
 	public void setMuserService(MUserServiceI muserService) {
 		this.muserService = muserService;
 	}
+*/
 
 	/*@RequestMapping(value = "/listUser")
 	@ResponseBody
@@ -73,17 +76,18 @@ public class MUserController {
 	@ResponseBody
 	public Base addUser(UserRequest userRequest) {
 
-			Base base = new Base();
-		try{
+		Base base = new Base();
+		try {
 
-			muserService.updateUserWeapp(userRequest);
-
+			if(muserService.updateUserWeapp(userRequest) == 0){
+				throw  new Exception("没有此用户");
+			};
 
 			base.setCode(0);
 			base.setState("成功");
 			base.setData("用户数据更新成功");
 			return base;
-		}catch (Exception e){
+		} catch (Exception e) {
 			base.setCode(2);
 			base.setState(e.getMessage());
 			base.setState(null);
@@ -113,17 +117,18 @@ public class MUserController {
 		return json;*/
 	}
 
-	@RequestMapping(value = "/appLogin", method = RequestMethod.POST)
+	@RequestMapping(value = "/appLogin")
 	@ResponseBody
-	public ReturnUser appLogin(String code) {
-		ReturnUser json = new ReturnUser();
-		if (code == null) {
-			json.setErrorCode(1001);
-			json.setReturnMessage("输入参数为空");
-			json.setServerStatus(1);
-		}
+
+	public Base appLogin(String code) {
+
+		//ReturnUser json = new ReturnUser();
+		Base base = new Base();
 
 		try {
+			if (code == null) {
+				throw new Exception("参数异常");
+			}
 
 			AccessToken dto = null;
 			HashMap<String, String> params = new HashMap<String, String>();
@@ -131,37 +136,62 @@ public class MUserController {
 			params.put("secret", secret);
 			params.put("js_code", code);
 			params.put("grant_type", GRANT_TYPE);
-			String tokenStr = OkHttpUtil.run(TOKEN_URL, null, params);
+			//String tokenStr = OkHttpUtil.run(TOKEN_URL, null, params);
+			//	String tokenStr = HttpUtil.getInstance().httpGet(TOKEN_URL, params);
+			//	String tokenStr = HttpPostUtils.getInstance().postHttps(TOKEN_URL,params);
+
+			CloseableHttpClient closeableHttpClient = HttpClientBuilder.create().build();
+			HttpPost post = new HttpPost("https://api.weixin.qq.com/sns/jscode2session?appid=" + appid + "&secret=" + secret + "&js_code=" + code + "&grant_type=" + GRANT_TYPE);
+			CloseableHttpResponse response = closeableHttpClient.execute(post);
+			String tokenStr = EntityUtils.toString(response.getEntity());
 			HashMap<String, Object> tokenInfo = jsonMapper.toMap(tokenStr);
+			System.out.print("tokenInfo---" + tokenInfo.toString());
 
 			if (tokenInfo != null && !tokenInfo.containsKey("errcode")) {
 				dto = new AccessToken();
-
 				dto.setOpenid(String.valueOf(tokenInfo.get("openid")));
-
 				dto.setSessionKey(String.valueOf(tokenInfo.get("session_key")));
 				// dto.setScope(String.valueOf(tokenInfo.get("scope")));
 				if (dto != null) {
-					UserWeapp userWeapp = new UserWeapp();
+					UserWeapp orderuser = muserService.selectWeapp(dto.getOpenid());
+					LoginResponse longinResponse = new LoginResponse();
+					if(orderuser == null){
+						UserWeapp userWeapp = new UserWeapp();
+						userWeapp.setAppId(appid);
+						userWeapp.setOpenId(dto.getOpenid());
+						String id = UUID.randomUUID().toString().replaceAll("-", "");
+						userWeapp.setUserId(id);
+						userWeapp.setCreateTime(System.currentTimeMillis());
+						muserService.insertWeapp(userWeapp);
+						longinResponse.setUid(id);
+						base.setData(longinResponse);
 
-					userWeapp.setAppId(appid);
-					userWeapp.setOpenId(dto.getOpenid());
-					String id = UUID.randomUUID().toString().replaceAll("-", "");
-					userWeapp.setUserId(id);
-					muserService.insertWeapp(userWeapp);
+					}else{
+						longinResponse.setUid(orderuser.getUserId());
+						base.setData(longinResponse);
+					}
+
+					base.setCode(0);
+					base.setState("成功");
 
 				}
-			} else {
-				json.setErrorCode(1001);
-				json.setReturnMessage("微信请求失败");
-				json.setServerStatus(1);
-			}
 
-		} catch (IOException e) {
+				} else {
+					base.setCode((Integer) tokenInfo.get("errcode"));
+					base.setState((String) tokenInfo.get("errmsg"));
+
+				}
+
+
+
+
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			base.setCode(2);
+			base.setState(e.getMessage());
 		}
-		return json;
+		return base;
 	}
 /*
 	@RequestMapping(value = "/userWeapp/insert" , method = RequestMethod.POST)
@@ -169,5 +199,15 @@ public class MUserController {
 
 
 	}*/
+
+	@RequestMapping("/insert")
+	@ResponseBody
+	public String insert(String code) {
+		UserWeapp userWeapp = muserService.selectWeapp(code);
+		if(userWeapp == null){
+			return "+++++++++";
+		}
+		return "----------"+userWeapp.toString();
+	}
 
 }

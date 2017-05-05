@@ -62,7 +62,9 @@ public interface BookBaseDao {
 	public int selectFavouriteList(UserBookFavourite userBookFavourite);
 	//删除收藏列表(取消收藏)
 	public int deleteFavouriteList(UserBookFavourite userBookFavourite);
-	
+
+	//查询用户和书的关系表
+	public BaseUserBook selectUserBookNexusByIdUid(BaseUserBook baseUserBook);
 	//修改用户和书的关系表
 	public int updateUserBook(BaseUserBook baseUserBook);
 	//添加一条关系数据
@@ -75,15 +77,21 @@ public interface BookBaseDao {
 	//public List<String> selectUserBookList(BaseUserBook baseUserBook);
 	public List<selectUserBookTime> selectUserBookList(BaseUserBook baseUserBook);
 
+
 	//写书评
 	public int insertUserComment(UserComment userComment);
 	//用户书评数量
 	public int selectUserCommentCount(String uid);
 	//用户书评列表
 	public List<UserComment> selectUserCommentList(String uid);
+	public Integer selectuserBookCountByUid(QueryUserComment vo);
+
 	//书的评论列表
 	public List<UserComment> selectUserCommentBookList(String id);
-	
+	//书的评论列表 分页
+	public Integer selectuserBookCountByid(QueryBookComment vo);
+	public List<UserComment> selectUserBookListById(QueryBookComment vo);
+
 	//查询评论用户
 	BookCommentUserItem selectUserWeappByBookId(String  uid);
 

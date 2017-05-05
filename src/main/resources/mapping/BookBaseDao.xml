@@ -17,7 +17,18 @@
 	<select id="queryBookBasePage" parameterType="rml.model.QueryVo" resultType="Integer">
 	select count(pid) from book
 	</select>
-	
+
+	<!--//书的评论列表 分页
+	public Integer selectuserBookCountByid(QueryBookComment vo);-->
+	<select id="selectuserBookCountByid" parameterType="rml.model.QueryBookComment" resultType="Integer">
+		select count(pid) from user_comment WHERE book_id = #{id}
+	</select>
+
+
+	<select id="selectuserBookCountByUid" parameterType="rml.model.QueryUserComment" resultType="Integer">
+		select count(pid) from user_comment WHERE user_id = #{uid}
+	</select>
+
 	<select id="queryBookBaseListByQueryVo" parameterType="rml.model.QueryVo" resultType="rml.model.BookDetails">
 		select id , title from book
 		limit #{startRow},#{size}
@@ -215,6 +226,14 @@
 	 delete from favourite_list where id = #{id} and  uid = #{uid}  
 	
 	</delete>
+
+	<!--//查询用户和书的关系表
+	public int selectUserBookNexusByIdUid(BaseUserBook baseUserBook);-->
+
+	<select id="selectUserBookNexusByIdUid" parameterType="rml.request.BaseUserBook"  resultType="rml.request.BaseUserBook">
+		SELECT <include refid="book_nexus"/> from user_book WHERE book_id = #{id} AND user_id = #{uid}
+	</select>
+
 	
 	<!-- //修改用户和书的关系表
 	public int updateUserBook(BaseUserBook baseUserBook); -->
@@ -279,9 +298,10 @@
 	</select>
 	
 	<!-- 用户书评列表//用户书评列表
+	 /*
+		,*/
 	public List<UserComment> selectUserCommentList(String uid); -->
 	<sql id = "user_comment">
-	
 		book_id as id,
 		user_id as uid,
 		content as content,
@@ -301,7 +321,19 @@
 	<select id="selectUserCommentBookList" parameterType="string" resultType="rml.request.UserComment">
 	
 		 select <include refid="user_comment"/> from user_comment 
-		 where book_id = #{id} 
+		 where book_id = #{id}
+
+
+	</select>
+
+	<!--setlectUserCommentBookList-->
+
+	<select id="selectUserBookListById" parameterType="rml.model.QueryBookComment" resultType="rml.request.UserComment">
+
+		select <include refid="user_comment"/> from user_comment
+		where book_id = #{id}
+		limit #{startRow},#{size}
+
 	</select>
 	
 	<!--//查询评论用户

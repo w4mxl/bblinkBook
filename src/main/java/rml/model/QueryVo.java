@@ -3,9 +3,9 @@ package rml.model;
 public class QueryVo {
 	//如果有查询条件添加查询条件的字段
 	//当前页
-	private Integer page;
+	private Integer page =1;
 	//每页数
-	private Integer size = 2;
+	private Integer size = 10;
 	//开始行
 	private Integer startRow = 0;
 	public Integer getPage() {

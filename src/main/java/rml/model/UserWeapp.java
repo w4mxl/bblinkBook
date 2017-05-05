@@ -44,16 +44,9 @@ public class UserWeapp  implements Serializable {
 
 	private Integer sort;
 
-	private byte[] nickName;
+	private String nickName;
 
-	public String getNickNameZN() {
-		try {
-			return new String(nickName, "UTF-8");
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
-		return null;
-	}
+
 
 	/**
 	 * 主键不能为空
@@ -193,6 +186,14 @@ public class UserWeapp  implements Serializable {
 		this.status = status;
 	}
 
+	public String getNickName() {
+		return nickName;
+	}
+
+	public void setNickName(String nickName) {
+		this.nickName = nickName;
+	}
+
 	public String getRemark() {
 		return remark;
 	}
@@ -209,12 +210,29 @@ public class UserWeapp  implements Serializable {
 		this.sort = sort;
 	}
 
-	public byte[] getNickName() {
-		return nickName;
-	}
 
-	public void setNickName(byte[] nickName) {
-		this.nickName = nickName;
+	@Override
+	public String toString() {
+		return "UserWeapp{" +
+				"pid=" + pid +
+				", userId='" + userId + '\'' +
+				", openId='" + openId + '\'' +
+				", appId='" + appId + '\'' +
+				", sex=" + sex +
+				", province='" + province + '\'' +
+				", city='" + city + '\'' +
+				", country='" + country + '\'' +
+				", headimgurl='" + headimgurl + '\'' +
+				", privilege='" + privilege + '\'' +
+				", unionid='" + unionid + '\'' +
+				", createTime=" + createTime +
+				", updateTime=" + updateTime +
+				", createUid='" + createUid + '\'' +
+				", updateUid='" + updateUid + '\'' +
+				", status='" + status + '\'' +
+				", remark='" + remark + '\'' +
+				", sort=" + sort +
+				", nickName=" +nickName+
+				'}';
 	}
-
 }

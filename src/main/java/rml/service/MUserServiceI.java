@@ -20,4 +20,6 @@ public interface MUserServiceI {
 
 	int updateUserWeapp (UserRequest userRequest);
 
+	UserWeapp selectWeapp(String openid);
+
 }

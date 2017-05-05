@@ -11,5 +11,5 @@ public interface MUserMapper {
 
     int insertWeapp(UserWeapp userWeapp);
 
-    int selectUserWeapp(String openId);
+    UserWeapp selectUserWeapp(String openId);
 }

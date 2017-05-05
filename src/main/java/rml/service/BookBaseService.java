@@ -61,9 +61,11 @@ public interface BookBaseService {
 	
 	int selectUserCommentCount(String uid);
 	
-	List<CommentItem> selectUserCommentList(String uid);
+	//List<CommentItem> selectUserCommentList(String uid);
+	Page<UserCommentResponse>  selectUserCommentList(QueryUserComment vo);
 	
 	List <BookCommentItem> setlectUserCommentBookList(String id);
+	Page<UserCommentResponse> setlectUserCommentBookList(QueryBookComment vo);
 
 	Page<SearchResultBean>  search(String searchContent );
 }
