@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="rml.dao.BookBaseDao">
 
-	<sql id="base_sql">
+<!--	<sql id="base_sql">
  		id as bookId, 
 		image as imageUrl,
  		title as bookName,
@@ -11,7 +11,7 @@
 
 	<select id="queryBookBase" resultType="rml.model.BaseBook">
 		select  <include refid="base_sql"/>  from book_base  
-	</select>
+	</select>-->
 	
 	
 	<select id="queryBookBasePage" parameterType="rml.model.QueryVo" resultType="Integer">
@@ -35,15 +35,15 @@
 	</select>
 	
 	
-	<select id="queryBookById" parameterType="Integer" resultType="rml.model.BaseBook">
+<!--	<select id="queryBookById" parameterType="Integer" resultType="rml.model.BaseBook">
 		select <include refid="base_sql"/> from book_base
 		<where>
 			id=#{bookId}
 		</where>
-	</select>
+	</select>-->
 	
 	<!-- 修改书目通过Id public void updateBookById(BaseBook basebook); -->
-	<update id="updateBookById" parameterType="rml.model.BaseBook" >
+<!--	<update id="updateBookById" parameterType="rml.model.BaseBook" >
 		update book_base
 		<set>
 			<if test="bookName != null">
@@ -59,11 +59,11 @@
 		<where>
 			id = #{bookId}
 		</where>
-	</update>
+	</update>-->
 	 <!-- 通过Id删除书目 public void deleteBookById(Integer id);-->
-	 <delete id = "deleteBookById" parameterType="Integer">
+	 <!--<delete id = "deleteBookById" parameterType="Integer">
 	 	delete from book_base where id = #{value}
-	 </delete>
+	 </delete>-->
 	<!-- //通过扫面isbn 添加图书信息
 	public boolean insertBookDetails(BookDetails bookdetails); -->
 	
@@ -100,10 +100,10 @@
 	</insert>
 	
 	<!-- 图书基本信息表 public int insertBookBase(BaseBook baseBook);  -->
-	<insert id="insertBookBase" parameterType="rml.model.BaseBook">
+<!--	<insert id="insertBookBase" parameterType="rml.model.BaseBook">
 	insert into book_base (id, image,title,state,favourite)
 		values (#{bookId},#{imageUrl},#{bookName},#{state},#{favourite})
-	</insert>
+	</insert>-->
 	<!-- // 查询查入的数据
 	public BookDetails selectBookDetails(String id); -->
 	<select id="selectBookDetails" parameterType="string" resultType="rml.model.BookDetails">
@@ -153,7 +153,7 @@
 		
 	</update>
 	
-	<update id="changeBookStateToBase" parameterType="rml.model.UserBookState">
+<!--	<update id="changeBookStateToBase" parameterType="rml.model.UserBookState">
 		update book_base
 		 <set>
 		 	<if test="state != null" >
@@ -164,7 +164,7 @@
 		<where>
 		 	id = #{id}
 		</where>
-	</update>
+	</update>-->
 	
 	<!-- 	public int changeBookFavourite(@Param(value = "id") String id,@Param(value = "favourite") Integer favourite); -->
 	<update id="changeBookFavourite">
@@ -182,7 +182,7 @@
 		</where>
 	</update>
 	
-	<update id="changeBookFavouriteToBase">
+<!--	<update id="changeBookFavouriteToBase">
 		update book_base
 		<set>
 			<if test="favourite != null">
@@ -195,7 +195,7 @@
 		<where>
 			id = #{id}
 		</where>
-	</update>
+	</update>-->
 	
 	<!--
 		//收藏(添加收藏)
@@ -206,7 +206,7 @@
 	public int deleteFavouriteList( userBookFavourite);
 	-->
 	
-	<insert id="insertFavouriteList" parameterType="rml.model.UserBookFavourite">
+	<!--<insert id="insertFavouriteList" parameterType="rml.model.UserBookFavourite">
 		insert into favourite_list (id,uid,favourite_data,favourite_state)
 		values (#{id},#{uid},#{favouriteState},#{favouriteData})
 	</insert>
@@ -219,13 +219,13 @@
 		  <where>
 	  				and uid = #{uid}
 		  </where>
-	</select>
+	</select>-->
 	
-	<delete  id="deleteFavouriteList" parameterType="rml.model.UserBookFavourite">
+	<!--<delete  id="deleteFavouriteList" parameterType="rml.model.UserBookFavourite">
 	
 	 delete from favourite_list where id = #{id} and  uid = #{uid}  
 	
-	</delete>
+	</delete>-->
 
 	<!--//查询用户和书的关系表
 	public int selectUserBookNexusByIdUid(BaseUserBook baseUserBook);-->
@@ -234,6 +234,14 @@
 		SELECT <include refid="book_nexus"/> from user_book WHERE book_id = #{id} AND user_id = #{uid}
 	</select>
 
+	<sql id="bookNexus">
+
+		nexus_state as nexusState,
+		nexus_time as  nexusTime
+	</sql>
+	<select id="selectuserBookNexusbyIdTodetail" parameterType="rml.request.BaseNexus" resultType="rml.model.BaseNexusResponse">
+		SELECT <include refid="bookNexus"/> from user_book WHERE book_id = #{id} AND user_id = #{uid}
+	</select>
 	
 	<!-- //修改用户和书的关系表
 	public int updateUserBook(BaseUserBook baseUserBook); -->
@@ -279,6 +287,7 @@
 	<select id="selectUserBookList" parameterType="rml.request.BaseUserBook" resultType="rml.model.selectUserBookTime">
 	
 		select <include refid="select_userbook"/> from user_book where	 user_id = #{uid} and nexus_state = #{nexusState}
+		limit #{startRow},#{size}
 	
 	</select>
 	
@@ -308,23 +317,17 @@
 		comment_time as commentTime
 	
 	</sql>
-	<select id="selectUserCommentList" parameterType="string" resultType="rml.request.UserComment">
+	<select id="selectUserCommentList" parameterType="rml.model.QueryUserComment" resultType="rml.request.UserComment">
 	
 		 select <include refid="user_comment"/> from user_comment 
-		 where user_id = #{uid} 
+		 where user_id = #{uid}
+
+		limit #{startRow},#{size}
+
 	</select>
 	
 	<!--//书的评论列表
 	public List<BookCommentItem> selectUserCommentBookList(String id);  -->
-	
-
-	<select id="selectUserCommentBookList" parameterType="string" resultType="rml.request.UserComment">
-	
-		 select <include refid="user_comment"/> from user_comment 
-		 where book_id = #{id}
-
-
-	</select>
 
 	<!--setlectUserCommentBookList-->
 
@@ -341,7 +344,7 @@
 	<sql id = "book_comment">
 
  		 user_id as userId,
-  		nick_name as nickName,
+  		  nick_name as nickName,
 		  sex as sex,
  		 headimgurl as headimgurl
 
@@ -398,6 +401,18 @@
 	<select id="searchImageByID" parameterType="string" resultType="rml.model.BookImages">
 		SELECT *
 		FROM images where id = #{value}
+	</select>
+
+	<!--int selectuBookCountBy(QueryContent queryContent);-->
+	<select id="selectuBookCountBy" parameterType="rml.model.QueryContent">
+		select * from book
+		where   title LIKE  CONCAT('%',#{searchContent},'%')
+
+
+	</select>
+
+	<select id="selectbook" parameterType="string" resultType="rml.model.BookDetails">
+		SELECT * from book WHERE  isbn13 = #{VALUE}
 	</select>
 
 </mapper>

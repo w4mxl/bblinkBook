@@ -3,6 +3,7 @@ package rml.dao;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
 import rml.model.*;
+import rml.request.BaseNexus;
 import rml.request.BaseUserBook;
 import rml.request.UserComment;
 
@@ -64,6 +65,7 @@ public interface BookBaseDao {
 	public int deleteFavouriteList(UserBookFavourite userBookFavourite);
 
 	//查询用户和书的关系表
+
 	public BaseUserBook selectUserBookNexusByIdUid(BaseUserBook baseUserBook);
 	//修改用户和书的关系表
 	public int updateUserBook(BaseUserBook baseUserBook);
@@ -83,7 +85,7 @@ public interface BookBaseDao {
 	//用户书评数量
 	public int selectUserCommentCount(String uid);
 	//用户书评列表
-	public List<UserComment> selectUserCommentList(String uid);
+	public List<UserComment> selectUserCommentList(QueryUserComment vo);
 	public Integer selectuserBookCountByUid(QueryUserComment vo);
 
 	//书的评论列表
@@ -105,6 +107,7 @@ public interface BookBaseDao {
 
 	//通过isbn模糊查询书
 	List<SearchResultBean> searchBookByISBN_dim(String isbnID);
+	int selectuBookCountBy(QueryContent queryContent);
 
 
 	//通过书名查询书
@@ -122,6 +125,9 @@ public interface BookBaseDao {
 	//通过书的ID查询图片
 	BookImages searchImageByID(String ID);
 
+	BookDetails selectbook(String isbn13);
+
+	BaseNexusResponse selectuserBookNexusbyIdTodetail(BaseNexus baseNexus);
 	/***************************************************************************/
 
 }

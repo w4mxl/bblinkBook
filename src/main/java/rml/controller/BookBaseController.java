@@ -2,12 +2,14 @@ package rml.controller;
 
 
 import com.alibaba.fastjson.JSON;
+import org.apache.http.util.TextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import rml.model.*;
+import rml.request.BaseNexus;
 import rml.request.BaseUserBook;
 import rml.request.UserComment;
 import rml.service.BookBaseService;
@@ -293,19 +295,40 @@ public class BookBaseController {
 	//关系列表（在读  1 ，想读 2， 已读 0）
 	@RequestMapping(value = "/userBook/list")
 	@ResponseBody
-	public Base selectUserBookList(BaseUserBook baseUserBook){
-		Base base = new Base();
-		try {
-			/*if(	baseUserBook.getId() == null||
-				baseUserBook.getNexusState()<0||
-				baseUserBook.getNexusState()>2){
-				throw new Exception("参数异常");
+	public BasePage selectUserBookList(BaseUserBook baseUserBook){
+		BasePage base = new BasePage();
+				try {
+					if(	baseUserBook.getUid() != null){
+
+				if(!TextUtils.isEmpty(baseUserBook.getTypeId())){
+					if(baseUserBook.getTypeId().equals("reading")){
+						baseUserBook.setNexusState(1);
+						System.out.print("-----"+baseUserBook.getNexusState());
+					}
+					if(baseUserBook.getTypeId().equals("wantread")){
+						baseUserBook.setNexusState(2);
+						System.out.print("-----"+baseUserBook.getNexusState());
+					}
+					if(baseUserBook.getTypeId().equals("readed")){
+						baseUserBook.setNexusState(-1);
+						System.out.print("-----"+baseUserBook.getNexusState());
+					}
+
+				}else {
+					throw new Exception("参数异常2");
+				}
+			}else {
+				throw new Exception("参数异常1");
 			}
-			*/
-		userBookListResponse	listResponse = bookBaseService.selectUserBookList(baseUserBook);
+
+
+			Page<userBookListResponse> listResponse = bookBaseService.selectUserBookList(baseUserBook);
 			base.setCode(0);
 			base.setState("成功");
-			base.setData(listResponse);
+			base.setData(listResponse.getRows());
+			base.setPageSize(baseUserBook.getSize());
+			base.setPageNum(baseUserBook.getPage());
+			base.setTotal(listResponse.getTotal());
 			return base;
 		} catch (Exception e) {
 			base.setCode(2);
@@ -314,9 +337,10 @@ public class BookBaseController {
 			return base;
 		}
 	}
-	
+
+
 	//写书评
-	@RequestMapping(value = "/userComment/insert")
+	@RequestMapping(value = "/userComment/insert" ,method = RequestMethod.POST)
 	@ResponseBody
 	public Base insertUserComment(UserComment userComment){
 		Base base = new Base();
@@ -417,18 +441,22 @@ public class BookBaseController {
 	//搜索
 	@RequestMapping(value = "/search")
 	@ResponseBody
-	public Base search(String searchContent) {
+	public BasePage search(QueryContent queryContent) {
 
-		Base base = new Base();
+		BasePage base = new BasePage();
 		try {
-			Page<SearchResultBean> page = bookBaseService.search(searchContent);
+			Page<SearchResultBean> page = bookBaseService.search(queryContent);
+
 			base.setCode(0);
 			base.setState("成功");
-			base.setData(page);
+			base.setData(page.getRows());
+			base.setPageNum(page.getPage());
+			base.setPageSize(page.getSize());
+			base.setTotal(page.getTotal());
 
 		} catch (Exception e) {
 			base.setCode(0);
-			base.setState("失败");
+			base.setState(e.getMessage());
 			base.setData(null);
 			return base;
 		}
@@ -436,5 +464,71 @@ public class BookBaseController {
 		return base;
 
 	}
-	
+
+
+	//
+	@RequestMapping(value = "/isbn13")
+	@ResponseBody
+	public Base selectIsbn13(String isbn13) {
+		Base base = new Base();
+		try {
+			if (isbn13 != null) {
+				BookDetails book= bookBaseService.selectBook(isbn13);
+				if(book != null ){
+					base.setCode(0);
+					base.setState("成功");
+					base.setData(book.getId());
+				}else {
+					base.setCode(1);
+					base.setState("成功");
+					base.setData("不存在");
+				}
+
+			}
+
+		} catch (Exception e) {
+			base.setCode(2);
+			base.setState(e.getMessage());
+			base.setData("失败");
+		}
+		return base;
+	}
+
+	//用户书关系状态
+	@RequestMapping(value = "userBook/selectNexus")
+	@ResponseBody
+	public Base selectUserBookNesus(BaseNexus baseNexus){
+		Base base = new Base();
+		try {
+
+			BaseNexusResponse baseNexusResponse = bookBaseService.selectUserBookNexus( baseNexus);
+
+			if(baseNexusResponse == null){
+				base.setCode(0);
+				base.setData(baseNexusResponse);
+				base.setState("成功");
+			} else {
+				if(baseNexusResponse.getNexusState() == -1){
+					baseNexusResponse.setTypeId("readed");
+				}
+				if(baseNexusResponse.getNexusState() == 1){
+					baseNexusResponse.setTypeId("reading");
+				}
+				if(baseNexusResponse.getNexusState() == 2){
+					baseNexusResponse.setTypeId("wantread");
+				}
+				base.setCode(0);
+				base.setData(baseNexusResponse);
+				base.setState("成功");
+			}
+
+		}catch (Exception e){
+
+			base.setCode(2);
+			base.setState("失败");
+			base.setData(e.getMessage());
+		}
+
+		return base;
+	}
 }

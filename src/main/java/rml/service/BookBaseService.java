@@ -1,6 +1,7 @@
 package rml.service;
 
 import rml.model.*;
+import rml.request.BaseNexus;
 import rml.request.BaseUserBook;
 import rml.request.UserComment;
 import rml.util.Page;
@@ -54,8 +55,8 @@ public interface BookBaseService {
 	BookDetails selectBookDetails(String id);
 	
 	UserBookCount selectBookCount(BaseUserBook baseUserBook);
-	
-	userBookListResponse selectUserBookList(BaseUserBook baseUserBook);
+
+	Page<userBookListResponse> selectUserBookList(BaseUserBook baseUserBook);
 	
 	int insertUserComment(UserComment userComment);
 	
@@ -67,5 +68,9 @@ public interface BookBaseService {
 	List <BookCommentItem> setlectUserCommentBookList(String id);
 	Page<UserCommentResponse> setlectUserCommentBookList(QueryBookComment vo);
 
-	Page<SearchResultBean>  search(String searchContent );
+	Page<SearchResultBean>  search(QueryContent queryContent);
+
+	BookDetails selectBook(String isbn13);
+
+	BaseNexusResponse selectUserBookNexus(BaseNexus baseNexus);
 }

@@ -1,22 +1,21 @@
 package rml.service.impl;
 
-import java.awt.Component.BaselineResizeBehavior;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-
-import com.sun.org.apache.xml.internal.resolver.readers.ExtendedXMLCatalogReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
 import rml.dao.BookBaseDao;
 import rml.model.*;
+import rml.request.BaseNexus;
 import rml.request.BaseUserBook;
 import rml.request.UserComment;
 import rml.service.BookBaseService;
 import rml.util.BaseUtils;
 import rml.util.Page;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+@Transactional
 @Service("bookBaseService")
 public class BookBaseServiceIml implements BookBaseService {
 
@@ -275,14 +274,16 @@ public class BookBaseServiceIml implements BookBaseService {
 				for(BaseUserBook userBook : bookNexus){
 					if(userBook.getNexusState() == 1){
 						if(baseUserBook.getNexusState() ==1){
-							//base.setData("这本书已经借出去了");
+							Thread.sleep(1000);
 							base.setData("这本书已经被其他小伙伴借走了");
-							base.setCode(0);
+							base.setCode(1);
 							base.setState("");
 							return base;
+
 						}
 					}
 				}
+
 			BaseUserBook baseUserBookres = bookBaseDao.selectUserBookNexusByIdUid(baseUserBook);
 			if(baseUserBookres == null) {
 
@@ -290,6 +291,9 @@ public class BookBaseServiceIml implements BookBaseService {
 					int i =	bookBaseDao.insertUserBook(baseUserBook);
 					if(i>0){
 						base.setData("借阅成功");
+						base.setCode(0);
+						base.setState("成功");
+
 					}else{
 						throw  new Exception("借书异常");
 					}
@@ -298,29 +302,41 @@ public class BookBaseServiceIml implements BookBaseService {
 					int i = bookBaseDao.insertUserBook(baseUserBook);
 					if(i>0){
 
-						base.setData("想读成功");
+						base.setData("添加成功");
+						base.setCode(0);
+						base.setState("成功");
+
 					}else{
 						throw  new Exception("想读异常");
 					}
 
 				}
 				if (baseUserBook.getNexusState() == -1) {
-					base.setData("您都没有借，拿什么去还");
+					base.setData("您都没有借，没法还哦");
+					base.setCode(1);
+					base.setState("成功");
+
 				}
-				base.setCode(0);
+				/*base.setCode(0);
 				base.setState("成功");
-				return  base;
+				return  base;*/
 				}
 
 				if(baseUserBookres != null){
 					if(baseUserBookres.getNexusState() ==1){//在读
 						if(baseUserBook.getNexusState() ==1||baseUserBook.getNexusState() ==2){
-							base.setData("你已经在读此书了");
+							base.setData("你之前已经借走此书了");
+							base.setCode(1);
+							base.setState("成功");
+
 						}
 						if(baseUserBook.getNexusState() == -1){
 							int i =  bookBaseDao.updateUserBook(baseUserBook);
 							if(i>0){
 								base.setData("归还成功");
+								base.setCode(0);
+								base.setState("成功");
+
 							}else{
 								throw  new Exception("归还失败");
 							}
@@ -329,13 +345,19 @@ public class BookBaseServiceIml implements BookBaseService {
 
 					if(baseUserBookres.getNexusState() == -1){
 						if(baseUserBook.getNexusState() == -1){
-							base.setData("这本书已经归还过了");
+							base.setData("您都没有借，没法还哦");
+							base.setCode(1);
+							base.setState("成功");
+
 						}
 						if(baseUserBook.getNexusState() == 1){
 							int i =  bookBaseDao.updateUserBook(baseUserBook);
 							if(i>0){
 
 								base.setData("借阅成功");
+								base.setCode(0);
+								base.setState("成功");
+
 							}else{
 								throw  new Exception("借阅失败");
 
@@ -345,7 +367,10 @@ public class BookBaseServiceIml implements BookBaseService {
 							int i =  bookBaseDao.updateUserBook(baseUserBook);
 							if(i>0){
 
-								base.setData("添加想读成功");
+								base.setData("添加成功");
+								base.setCode(0);
+								base.setState("成功");
+
 							}else{
 								throw  new Exception("添加想读失败");
 							}
@@ -354,30 +379,40 @@ public class BookBaseServiceIml implements BookBaseService {
 
 					if(baseUserBookres.getNexusState() == 2){
 						if(baseUserBook.getNexusState() == 2){
-							base.setData("这本书已经想读了");
+							base.setData("这本书标记过想读了");
+							base.setCode(1);
+							base.setState("成功");
+
 						}
 						if(baseUserBook.getNexusState() == -1){
-							base.setData("您都没有借，拿什么去还");
+							base.setData("您都没有借，没法还哦");
+							base.setCode(1);
+							base.setState("成功");
+
 						}
 						if(baseUserBook.getNexusState() == 1){
 							int i =  bookBaseDao.updateUserBook(baseUserBook);
 							if(i>0){
-								base.setData("想读到借书成功");
+								base.setData("借阅成功");
+								base.setCode(0);
+								base.setState("成功");
+
 							}else{
 								throw  new Exception("想读到借书失败");
 							}
 						}
 					}
 				}
-			base.setCode(0);
+			/*base.setCode(0);
 			base.setState("成功");
-			return base;
+			return base;*/
 		} catch (Exception e) {
 			base.setCode(2);
 			base.setState(e.getMessage());
 			base.setData("状态更新失败");
-			return base;
+
 		}
+		return base;
 	}
 
 	@Override
@@ -431,58 +466,34 @@ public class BookBaseServiceIml implements BookBaseService {
 	}
 
 	@Override
-	public userBookListResponse selectUserBookList(BaseUserBook baseUserBook) {
-			List<UserBookTime> readingList = new ArrayList<UserBookTime>();
-			List<UserBookTime> wantReadList = new ArrayList<UserBookTime>();
-			List<UserBookTime> readedList  = new ArrayList<UserBookTime>();
+	public Page<userBookListResponse> selectUserBookList(BaseUserBook baseUserBook) {
+			List<userBookListResponse> readList = new ArrayList<userBookListResponse>();
 
-			//在读书的id
-			baseUserBook.setNexusState(1);
-		    //List<String> listReading = bookBaseDao.selectUserBookList(baseUserBook);
-			List<selectUserBookTime> listReading = bookBaseDao.selectUserBookList(baseUserBook);
-			//想读书的id
-			baseUserBook.setNexusState(2);
-			//List<String> listWantRead = bookBaseDao.selectUserBookList(baseUserBook);
-			List<selectUserBookTime> listWantRead = bookBaseDao.selectUserBookList(baseUserBook);
-			//还书的书的id
-			baseUserBook.setNexusState(0);
-			//List<String> listReaded = bookBaseDao.selectUserBookList(baseUserBook);
-			List<selectUserBookTime> listReaded = bookBaseDao.selectUserBookList(baseUserBook);
-
-		for (selectUserBookTime id : listReading) {
-			UserBookTime userBookItem = new UserBookTime();
-			/*	BookDetails bookDetails =selectBookDetails(id.getBookId());
-				Long time  = id.getCreateTime();*/
-				userBookItem.setBookDetails(selectBookDetails(id.getBookId()));
-				userBookItem.setCreatTime(id.getCreateTime());
-				readingList.add(userBookItem);
+			Page<userBookListResponse> page = new Page<userBookListResponse>();
+			page.setTotal(bookBaseDao.selectUserBookCount(baseUserBook));
+		if(baseUserBook.getPage()!= null){
+			page.setPage(baseUserBook.getPage());
+			baseUserBook.setStartRow((baseUserBook.getPage()-1)*baseUserBook.getSize());
 		}
+			List<selectUserBookTime> list =bookBaseDao.selectUserBookList(baseUserBook);
+			if(list != null){
+				for (selectUserBookTime id : list) {
+					userBookListResponse userbookListResponse = new userBookListResponse();
+					BookDetails bookDetails = selectBookDetails(id.getBookId());
+					userbookListResponse.setTitle(bookDetails.getTitle());
+					userbookListResponse.setAuthor(bookDetails.getAuthor());
+					userbookListResponse.setPublisher(bookDetails.getPublisher());
+					userbookListResponse.setPubdate(bookDetails.getPubdate());
+					userbookListResponse.setRating(bookDetails.getRating().getAverage());
+					userbookListResponse.setCreateTime(id.getCreateTime());
+					userbookListResponse.setImages(bookDetails.getImages());
+					userbookListResponse.setId(id.getBookId());
+					readList.add(userbookListResponse);
+				}
+				page.setRows(readList);
+			}
 
-		for (selectUserBookTime id: listWantRead){
-			/*BookDetails bookDetails =selectBookDetails(id);
-			wantReadList.add(bookDetails);*/
-			UserBookTime userBookItem = new UserBookTime();
-			userBookItem.setBookDetails(selectBookDetails(id.getBookId()));
-			userBookItem.setCreatTime(id.getCreateTime());
-			wantReadList.add(userBookItem);
-		}
-
-		for(selectUserBookTime id: listReaded){
-
-			/*BookDetails bookDetails =selectBookDetails(id);
-			readedList.add(bookDetails);*/
-
-			UserBookTime userBookItem = new UserBookTime();
-			userBookItem.setBookDetails(selectBookDetails(id.getBookId()));
-			userBookItem.setCreatTime(id.getCreateTime());
-			readedList.add(userBookItem);
-		}
-		userBookListResponse listResponse = new userBookListResponse();
-		listResponse.setReading(readingList);
-		listResponse.setReaded(readedList);
-		listResponse.setWantRead(wantReadList);
-
-		return listResponse;
+		return page;
 	}
 	
 	@Override
@@ -500,8 +511,14 @@ public class BookBaseServiceIml implements BookBaseService {
 		Page<UserCommentResponse> page = new Page<UserCommentResponse>();
 		page.setTotal(bookBaseDao.selectuserBookCountByUid(vo));
 		List<UserCommentResponse> commentList = new ArrayList<UserCommentResponse>();
-		List<UserComment> userCommetnList =bookBaseDao. selectUserCommentList(vo.getUid());
-	
+		if(vo.getPage()!= null){
+			page.setPage(vo.getPage());
+			vo.setStartRow((vo.getPage()-1)*vo.getSize());
+		}
+
+		List<UserComment> userCommetnList =bookBaseDao. selectUserCommentList(vo);
+
+
 		for (UserComment userComment : userCommetnList) {
 
 			UserCommentResponse userCommentResponse = new UserCommentResponse();
@@ -551,8 +568,11 @@ public class BookBaseServiceIml implements BookBaseService {
 		for (UserComment userComment : BookCommentList) {
 			//BookCommentItem item = new BookCommentItem();
 			BookCommentUserItem user = bookBaseDao.selectUserWeappByBookId(userComment.getUid());
+			System.out.print("++++"+user.toString());
 
 			UserCommentResponse userCommentResponse = new UserCommentResponse();
+			userCommentResponse.setName(user.getNickName());
+			userCommentResponse.setImage(user.getHeadimgurl());
 			userCommentResponse.setContent(userComment.getContent());
 			userCommentResponse.setCommentTime(userComment.getCommentTime());
 			/*userCommentResponse.setImage(user.getHeadimgurl());
@@ -570,21 +590,29 @@ public class BookBaseServiceIml implements BookBaseService {
 
 	//查询
 	@Override
- 	public Page<SearchResultBean> search(String searchContent) {
+ 	public Page<SearchResultBean> search(QueryContent queryContent) {
 
 		Page<SearchResultBean> page = new Page<SearchResultBean>();
 
+		//每页数
+		page.setSize(queryContent.getSize());
+		if(queryContent.getPage()!= null){
+			page.setPage(queryContent.getPage());
+			queryContent.setStartRow((queryContent.getPage()-1)*queryContent.getSize());
+		}
+		//总条数
+		//page.setTotal(bookBaseDao.selectuBookCountBy(queryContent));
 		//isbn查询
 		List<SearchResultBean> resultList = new ArrayList<SearchResultBean>();
-		if (BaseUtils.isNumeric(searchContent) && searchContent.length() >= 10) {
+		if (BaseUtils.isNumeric(queryContent.getSearchContent()) && queryContent.getSearchContent().length() >= 10) {
 
-			resultList.addAll(bookBaseDao.searchBookByISBN_dim(searchContent));
+			resultList.addAll(bookBaseDao.searchBookByISBN_dim(queryContent.getSearchContent()));
 
 		} else {
 			//作者和书名查询
 			ArrayList<SearchResultBean> list = new ArrayList<SearchResultBean>();
-			list.addAll(bookBaseDao.searchBookByBookName_dim(searchContent));
-			List<String> bookIDList = bookBaseDao.searchBookIDbyAuthor_dim(searchContent);
+			list.addAll(bookBaseDao.searchBookByBookName_dim(queryContent.getSearchContent()));
+			List<String> bookIDList = bookBaseDao.searchBookIDbyAuthor_dim(queryContent.getSearchContent());
 			for (String bookID : bookIDList) {
 				list.add(bookBaseDao.searchBookByID(bookID));
 			}
@@ -604,5 +632,15 @@ public class BookBaseServiceIml implements BookBaseService {
 		page.setTotal(resultList.size());
 		return page;
 
+	}
+
+	@Override
+	public BookDetails selectBook(String isbn13) {
+		return bookBaseDao.selectbook(isbn13);
+	}
+
+	@Override
+	public BaseNexusResponse selectUserBookNexus(BaseNexus baseNexus) {
+		return bookBaseDao.selectuserBookNexusbyIdTodetail(baseNexus);
 	}
 }

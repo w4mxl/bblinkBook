@@ -30,6 +30,14 @@ public class BookCommentUserItem {
 	public void setHeadimgurl(String headimgurl) {
 		this.headimgurl = headimgurl;
 	}
-	
-	
+
+	@Override
+	public String toString() {
+		return "BookCommentUserItem{" +
+				"userId='" + userId + '\'' +
+				", nickName='" + nickName + '\'' +
+				", sex=" + sex +
+				", headimgurl='" + headimgurl + '\'' +
+				'}';
+	}
 }
